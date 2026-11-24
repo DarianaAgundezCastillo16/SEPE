@@ -3,10 +3,8 @@
 $host = 'localhost';
 $dbname = 'sepe';
 $user = 'root';
-$pass = getenv('SEPE_DB_PASSWORD') ?: 'Yam.idk12';
-if (is_file(__DIR__ . '/config.local.php')) {
-    require __DIR__ . '/config.local.php';
-}
+$pass = 'Yam.idk12';
+if (is_file(__DIR__ . '/config.local.php')) { require __DIR__ . '/config.local.php'; }
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
 } catch (PDOException $e) {
