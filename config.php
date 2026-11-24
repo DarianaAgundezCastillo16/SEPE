@@ -3,7 +3,7 @@
 $host = 'localhost';
 $dbname = 'sepe';
 $user = 'root';
-$pass = 'Yam.idk12';
+$pass = '';
 if (is_file(__DIR__ . '/config.local.php')) { require __DIR__ . '/config.local.php'; }
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
