@@ -1,4 +1,4 @@
-# SEPE 2.0
+# SEPE 
 Prototipo educativo de evaluación de síntomas. PHP 8 y MySQL/MariaDB con PDO MySQL.
 
 
