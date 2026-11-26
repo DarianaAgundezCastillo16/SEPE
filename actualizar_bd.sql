@@ -2,191 +2,641 @@ SET NAMES utf8mb4;
 USE sepe;
 CREATE TABLE IF NOT EXISTS riesgo_edad (id INT AUTO_INCREMENT PRIMARY KEY, enfermedad_id INT NOT NULL, edad_minima TINYINT UNSIGNED NOT NULL, edad_maxima TINYINT UNSIGNED NOT NULL, factor DECIMAL(4,2) NOT NULL, fuente VARCHAR(500) NOT NULL, UNIQUE(enfermedad_id,edad_minima,edad_maxima), FOREIGN KEY(enfermedad_id) REFERENCES enfermedades(id), CHECK(edad_minima <= edad_maxima), CHECK(factor > 0)) ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS riesgo_sexo (id INT AUTO_INCREMENT PRIMARY KEY, enfermedad_id INT NOT NULL, sexo ENUM('Femenino','Masculino') NOT NULL, factor DECIMAL(4,2) NOT NULL, fuente VARCHAR(500) NOT NULL, UNIQUE(enfermedad_id,sexo), FOREIGN KEY(enfermedad_id) REFERENCES enfermedades(id), CHECK(factor > 0)) ENGINE=InnoDB;
--- Multiplicadores ilustrativos, no estimaciones epidemiológicas ni valores publicados por las fuentes.
-INSERT IGNORE INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Femenino',1.2,'https://medlineplus.gov/urinarytractinfections.html' FROM enfermedades WHERE nombre='Infección urinaria baja';
-INSERT IGNORE INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Femenino',1.15,'https://medlineplus.gov/migraine.html' FROM enfermedades WHERE nombre='Migraña';
-
--- Reemplaza reglas de edad anteriores para evitar solapamientos.
 START TRANSACTION;
-DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre IN ('Resfriado común','Influenza','COVID-19','Bronquitis aguda','Neumonía','Asma','Rinitis alérgica','Sinusitis aguda','Faringitis viral','Amigdalitis estreptocócica','Gastroenteritis viral','Infección urinaria baja','Migraña','Reflujo gastroesofágico','Otitis media aguda'));
-INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente)
-SELECT id,0,5,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,6,12,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,13,17,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,40,64,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,65,120,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común'
-UNION ALL
-SELECT id,0,5,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,6,12,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,13,17,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,40,64,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,65,120,1.40,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza'
-UNION ALL
-SELECT id,0,5,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,6,12,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,13,17,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,18,39,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,40,64,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,65,120,1.35,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19'
-UNION ALL
-SELECT id,0,5,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,6,12,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,13,17,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,40,64,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,65,120,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda'
-UNION ALL
-SELECT id,0,5,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,6,12,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,13,17,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,40,64,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,65,120,1.50,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía'
-UNION ALL
-SELECT id,0,5,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,6,12,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,13,17,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,40,64,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,65,120,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma'
-UNION ALL
-SELECT id,0,5,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,6,12,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,13,17,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,18,39,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,40,64,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,65,120,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica'
-UNION ALL
-SELECT id,0,5,0.75,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,6,12,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,13,17,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,18,39,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,40,64,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,65,120,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda'
-UNION ALL
-SELECT id,0,5,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,6,12,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,13,17,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,40,64,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,65,120,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral'
-UNION ALL
-SELECT id,0,5,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,6,12,1.50,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,13,17,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,18,39,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,40,64,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,65,120,0.70,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica'
-UNION ALL
-SELECT id,0,5,1.40,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,6,12,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,13,17,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,18,39,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,40,64,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,65,120,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral'
-UNION ALL
-SELECT id,0,5,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,6,12,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,13,17,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,18,39,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,40,64,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,65,120,1.40,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja'
-UNION ALL
-SELECT id,0,5,0.50,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,6,12,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,13,17,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,18,39,1.40,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,40,64,1.20,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,65,120,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña'
-UNION ALL
-SELECT id,0,5,1.00,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,6,12,0.80,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,13,17,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,18,39,1.10,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,40,64,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,65,120,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico'
-UNION ALL
-SELECT id,0,5,1.50,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda'
-UNION ALL
-SELECT id,6,12,1.30,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda'
-UNION ALL
-SELECT id,13,17,0.90,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda'
-UNION ALL
-SELECT id,18,39,0.70,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda'
-UNION ALL
-SELECT id,40,64,0.70,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda'
-UNION ALL
-SELECT id,65,120,0.70,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+UPDATE sintomas SET categoria='General' WHERE nombre='Fiebre';
+UPDATE sintomas SET categoria='General' WHERE nombre='Fatiga';
+UPDATE sintomas SET categoria='General' WHERE nombre='Dolor de cabeza';
+UPDATE sintomas SET categoria='General' WHERE nombre='Escalofríos';
+UPDATE sintomas SET categoria='Muscular y articular' WHERE nombre='Dolor muscular';
+UPDATE sintomas SET categoria='General' WHERE nombre='Malestar general';
+UPDATE sintomas SET categoria='General' WHERE nombre='Debilidad';
+UPDATE sintomas SET categoria='General' WHERE nombre='Pérdida de apetito';
+UPDATE sintomas SET categoria='General' WHERE nombre='Sudoración';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Tos';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Tos seca';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Tos con flema';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Dolor de garganta';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Congestión nasal';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Secreción nasal';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Estornudos';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Dificultad para respirar';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Sibilancias';
+UPDATE sintomas SET categoria='Cardiovascular' WHERE nombre='Dolor torácico';
+UPDATE sintomas SET categoria='Cardiovascular' WHERE nombre='Opresión en el pecho';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Pérdida del olfato o gusto';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Dolor facial';
+UPDATE sintomas SET categoria='Respiratorio' WHERE nombre='Ronquera';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Náuseas';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Vómito';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Diarrea';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Dolor abdominal';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Acidez';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Reflujo';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Distensión abdominal';
+UPDATE sintomas SET categoria='Digestivo' WHERE nombre='Dolor al tragar';
+UPDATE sintomas SET categoria='Urinario' WHERE nombre='Dolor al orinar';
+UPDATE sintomas SET categoria='Urinario' WHERE nombre='Orina frecuente';
+UPDATE sintomas SET categoria='Urinario' WHERE nombre='Sangre en orina';
+UPDATE sintomas SET categoria='Urinario' WHERE nombre='Dolor lumbar';
+UPDATE sintomas SET categoria='Auditivo y visual' WHERE nombre='Picazón de ojos';
+UPDATE sintomas SET categoria='Auditivo y visual' WHERE nombre='Ojos llorosos';
+UPDATE sintomas SET categoria='Dermatológico' WHERE nombre='Erupción cutánea';
+UPDATE sintomas SET categoria='Auditivo y visual' WHERE nombre='Dolor de oído';
+UPDATE sintomas SET categoria='Auditivo y visual' WHERE nombre='Presión en el oído';
+UPDATE sintomas SET categoria='Neurológico' WHERE nombre='Sensibilidad a la luz';
+UPDATE sintomas SET categoria='Neurológico' WHERE nombre='Dolor de un lado de la cabeza';
+INSERT INTO sintomas(nombre,categoria) VALUES ('Fiebre alta','General') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Palidez','General') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Pérdida de peso','General') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Aumento de peso','General') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ganglios inflamados','General') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Respiración rápida','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Tos perruna','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Estridor','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ataques de tos','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Tos crónica','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Pausas respiratorias','Respiratorio') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Estreñimiento','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Gases','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dolor abdominal superior derecho','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dolor después de comer','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ictericia','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Vómito después de toser','Digestivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Mareos','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Temblores','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Pérdida de memoria','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Desorientación','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Pérdida de equilibrio','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Lentitud de movimientos','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad para encontrar palabras','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ansiedad','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Confusión repentina','Neurológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Llagas bucales','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ampollas en manos y pies','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ampollas','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Comezón','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Lengua aframbuesada','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Mejillas enrojecidas','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Espinillas','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Puntos negros','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Inflamación de la piel','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Heridas que tardan en sanar','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Piel seca','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Caída del cabello','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ampollas localizadas','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Ardor en la piel','Dermatológico') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad para orinar','Urinario') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Urgencia urinaria','Urinario') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Chorro urinario débil','Urinario') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Micción nocturna','Urinario') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Palpitaciones','Cardiovascular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Hinchazón de piernas','Cardiovascular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad respiratoria al acostarse','Cardiovascular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dolor articular','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Rigidez articular','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Limitación de movimiento','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Inflamación articular','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad para caminar','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Rigidez muscular','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dolor localizado','Muscular y articular') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Visión borrosa','Auditivo y visual') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad para alimentarse','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Hundimiento de costillas al respirar','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Irritabilidad','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Babeo excesivo','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Llanto inconsolable','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Disminución de pañales mojados','Infantil') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Caídas frecuentes','Adultos mayores') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Dificultad para realizar actividades cotidianas','Adultos mayores') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Cambios de comportamiento','Adultos mayores') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Pérdida de autonomía','Adultos mayores') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Cólicos menstruales','Hormonal y reproductivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Sed excesiva','Hormonal y reproductivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Intolerancia al frío','Hormonal y reproductivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO sintomas(nombre,categoria) VALUES ('Intolerancia al calor','Hormonal y reproductivo') ON DUPLICATE KEY UPDATE categoria=VALUES(categoria);
+INSERT INTO referencias(institucion,titulo,url) SELECT 'MedlinePlus','Temas de salud (consulta general; no valida los pesos)','https://medlineplus.gov/spanish/healthtopics.html' WHERE NOT EXISTS (SELECT 1 FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)');
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Bronquiolitis',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Tos' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Sibilancias' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Dificultad para respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Respiración rápida' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Dificultad para alimentarse' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Hundimiento de costillas al respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Secreción nasal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Crup',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Tos perruna' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Estridor' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Ronquera' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Congestión nasal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Crup' AND s.nombre='Dificultad para respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Roséola infantil',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Roséola infantil' AND s.nombre='Fiebre alta' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Roséola infantil' AND s.nombre='Erupción cutánea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Roséola infantil' AND s.nombre='Irritabilidad' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Roséola infantil' AND s.nombre='Pérdida de apetito' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Enfermedad mano-pie-boca',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad mano-pie-boca' AND s.nombre='Llagas bucales' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad mano-pie-boca' AND s.nombre='Ampollas en manos y pies' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad mano-pie-boca' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad mano-pie-boca' AND s.nombre='Dolor al tragar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad mano-pie-boca' AND s.nombre='Babeo excesivo' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Varicela',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Varicela' AND s.nombre='Ampollas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Varicela' AND s.nombre='Comezón' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Varicela' AND s.nombre='Erupción cutánea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Varicela' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Varicela' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Tos ferina',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Tos ferina' AND s.nombre='Ataques de tos' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Tos ferina' AND s.nombre='Vómito después de toser' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Tos ferina' AND s.nombre='Tos' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Tos ferina' AND s.nombre='Pausas respiratorias' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Tos ferina' AND s.nombre='Secreción nasal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Escarlatina',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Escarlatina' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Escarlatina' AND s.nombre='Dolor de garganta' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Escarlatina' AND s.nombre='Erupción cutánea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Escarlatina' AND s.nombre='Lengua aframbuesada' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Escarlatina' AND s.nombre='Dolor al tragar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Quinta enfermedad',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Quinta enfermedad' AND s.nombre='Mejillas enrojecidas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Quinta enfermedad' AND s.nombre='Erupción cutánea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Quinta enfermedad' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Quinta enfermedad' AND s.nombre='Dolor articular' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Mononucleosis',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Mononucleosis' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Mononucleosis' AND s.nombre='Fiebre' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Mononucleosis' AND s.nombre='Ganglios inflamados' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Mononucleosis' AND s.nombre='Dolor de garganta' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Mononucleosis' AND s.nombre='Dolor al tragar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Acné',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Acné' AND s.nombre='Espinillas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Acné' AND s.nombre='Puntos negros' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Acné' AND s.nombre='Inflamación de la piel' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Dismenorrea',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Dismenorrea' AND s.nombre='Cólicos menstruales' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Dismenorrea' AND s.nombre='Dolor abdominal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Dismenorrea' AND s.nombre='Náuseas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Dismenorrea' AND s.nombre='Dolor lumbar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Dismenorrea' AND s.nombre='Dolor de cabeza' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Anemia ferropénica',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Palidez' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Mareos' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Debilidad' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Palpitaciones' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Anemia ferropénica' AND s.nombre='Dificultad para respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Diabetes tipo 2',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Sed excesiva' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Orina frecuente' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Visión borrosa' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Pérdida de peso' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Diabetes tipo 2' AND s.nombre='Heridas que tardan en sanar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Hipotiroidismo',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Aumento de peso' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Intolerancia al frío' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Estreñimiento' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Piel seca' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipotiroidismo' AND s.nombre='Caída del cabello' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Síndrome de intestino irritable',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Síndrome de intestino irritable' AND s.nombre='Dolor abdominal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Síndrome de intestino irritable' AND s.nombre='Distensión abdominal' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Síndrome de intestino irritable' AND s.nombre='Diarrea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Síndrome de intestino irritable' AND s.nombre='Estreñimiento' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Síndrome de intestino irritable' AND s.nombre='Gases' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Cálculos renales',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos renales' AND s.nombre='Dolor lumbar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos renales' AND s.nombre='Sangre en orina' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos renales' AND s.nombre='Náuseas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos renales' AND s.nombre='Vómito' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos renales' AND s.nombre='Dolor al orinar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Hipertiroidismo',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Palpitaciones' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Pérdida de peso' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Intolerancia al calor' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Temblores' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Sudoración' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hipertiroidismo' AND s.nombre='Ansiedad' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Cálculos biliares',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos biliares' AND s.nombre='Dolor abdominal superior derecho' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos biliares' AND s.nombre='Náuseas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos biliares' AND s.nombre='Vómito' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos biliares' AND s.nombre='Dolor después de comer' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Cálculos biliares' AND s.nombre='Ictericia' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Osteoartritis',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Osteoartritis' AND s.nombre='Dolor articular' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Osteoartritis' AND s.nombre='Rigidez articular' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Osteoartritis' AND s.nombre='Limitación de movimiento' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Osteoartritis' AND s.nombre='Inflamación articular' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Osteoartritis' AND s.nombre='Dificultad para caminar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Enfermedad de Parkinson',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Temblores' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Lentitud de movimientos' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Rigidez muscular' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Pérdida de equilibrio' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Dificultad para caminar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Parkinson' AND s.nombre='Caídas frecuentes' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Enfermedad de Alzheimer',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Pérdida de memoria' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Desorientación' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Dificultad para realizar actividades cotidianas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Cambios de comportamiento' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Dificultad para encontrar palabras' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Enfermedad de Alzheimer' AND s.nombre='Pérdida de autonomía' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Insuficiencia cardíaca',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Insuficiencia cardíaca' AND s.nombre='Dificultad para respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Insuficiencia cardíaca' AND s.nombre='Hinchazón de piernas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Insuficiencia cardíaca' AND s.nombre='Dificultad respiratoria al acostarse' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Insuficiencia cardíaca' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Insuficiencia cardíaca' AND s.nombre='Aumento de peso' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'EPOC',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='EPOC' AND s.nombre='Tos crónica' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='EPOC' AND s.nombre='Tos con flema' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='EPOC' AND s.nombre='Dificultad para respirar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='EPOC' AND s.nombre='Sibilancias' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='EPOC' AND s.nombre='Fatiga' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Herpes zóster',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Herpes zóster' AND s.nombre='Ampollas localizadas' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Herpes zóster' AND s.nombre='Ardor en la piel' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Herpes zóster' AND s.nombre='Dolor localizado' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Herpes zóster' AND s.nombre='Comezón' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Herpes zóster' AND s.nombre='Erupción cutánea' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT IGNORE INTO enfermedades(nombre,referencia_id) SELECT 'Hiperplasia prostática benigna',MIN(id) FROM referencias WHERE titulo='Temas de salud (consulta general; no valida los pesos)';
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hiperplasia prostática benigna' AND s.nombre='Dificultad para orinar' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hiperplasia prostática benigna' AND s.nombre='Orina frecuente' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hiperplasia prostática benigna' AND s.nombre='Urgencia urinaria' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,5 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hiperplasia prostática benigna' AND s.nombre='Chorro urinario débil' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Hiperplasia prostática benigna' AND s.nombre='Micción nocturna' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Neumonía' AND s.nombre='Confusión repentina' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,4 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Neumonía' AND s.nombre='Respiración rápida' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Otitis media aguda' AND s.nombre='Llanto inconsolable' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,3 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Gastroenteritis viral' AND s.nombre='Disminución de pañales mojados' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+INSERT INTO enfermedad_sintoma SELECT e.id,s.id,2 FROM enfermedades e CROSS JOIN sintomas s WHERE e.nombre='Bronquiolitis' AND s.nombre='Llanto inconsolable' ON DUPLICATE KEY UPDATE peso=VALUES(peso);
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Resfriado común');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Resfriado común';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Influenza');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Influenza';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='COVID-19');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.35,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.35,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='COVID-19';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Bronquitis aguda');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquitis aguda';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Neumonía');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Neumonía';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Asma');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Asma';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Rinitis alérgica');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.85,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Rinitis alérgica';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Sinusitis aguda');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.75,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.75,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Sinusitis aguda';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Faringitis viral');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Faringitis viral';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Amigdalitis estreptocócica');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Amigdalitis estreptocócica';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Gastroenteritis viral');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Gastroenteritis viral';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Infección urinaria baja');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.95,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Migraña');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Reflujo gastroesofágico');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Reflujo gastroesofágico';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Otitis media aguda');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Otitis media aguda';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Bronquiolitis');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Bronquiolitis';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Crup');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Crup';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Roséola infantil');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Roséola infantil';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad mano-pie-boca';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Varicela');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Varicela';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Tos ferina');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Tos ferina';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Escarlatina');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Escarlatina';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Quinta enfermedad');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Quinta enfermedad';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Mononucleosis');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Mononucleosis';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Acné');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Acné';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Dismenorrea');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Anemia ferropénica');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Anemia ferropénica';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Diabetes tipo 2');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Diabetes tipo 2';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Hipotiroidismo');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipotiroidismo';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Síndrome de intestino irritable');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Síndrome de intestino irritable';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Cálculos renales');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos renales';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Hipertiroidismo');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,1.0,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hipertiroidismo';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Cálculos biliares');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Cálculos biliares';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Osteoartritis');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Osteoartritis';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Enfermedad de Parkinson');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.9,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Parkinson';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Enfermedad de Alzheimer');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Enfermedad de Alzheimer';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Insuficiencia cardíaca');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.7,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Insuficiencia cardíaca';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='EPOC');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='EPOC';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Herpes zóster');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.4,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.8,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Herpes zóster';
+DELETE FROM riesgo_edad WHERE enfermedad_id IN (SELECT id FROM enfermedades WHERE nombre='Hiperplasia prostática benigna');
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,0,1,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,2,5,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,6,12,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,13,17,0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,18,39,0.3,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,40,64,1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,65,79,1.5,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_edad(enfermedad_id,edad_minima,edad_maxima,factor,fuente) SELECT id,80,120,1.6,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna';
+INSERT INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Masculino',0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Dismenorrea' ON DUPLICATE KEY UPDATE factor=VALUES(factor),fuente=VALUES(fuente);
+INSERT INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Femenino',0.1,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Hiperplasia prostática benigna' ON DUPLICATE KEY UPDATE factor=VALUES(factor),fuente=VALUES(fuente);
+INSERT INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Femenino',1.15,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Migraña' ON DUPLICATE KEY UPDATE factor=VALUES(factor),fuente=VALUES(fuente);
+INSERT INTO riesgo_sexo(enfermedad_id,sexo,factor,fuente) SELECT id,'Femenino',1.2,'SIMULACION EDUCATIVA: factor ficticio' FROM enfermedades WHERE nombre='Infección urinaria baja' ON DUPLICATE KEY UPDATE factor=VALUES(factor),fuente=VALUES(fuente);
 COMMIT;
